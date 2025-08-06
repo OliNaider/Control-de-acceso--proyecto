@@ -17,10 +17,10 @@ byte pin_rows[ROW_NUM] = {12, 11, 10, 9}; // GPIO18, GPIO5, GPIO17, GPIO16 conne
 byte pin_column[COLUMN_NUM] = {8, 7, 6, 5};  // GPIO4, GPIO0, GPIO2 connect to the column pins
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
-
-String password = "7890"; // change your password here
-String input_password;
+ 
+char input_password;
 const String cambioClave = "123";
+char password;
 
 void setup() {
   Serial.begin(9600);
@@ -33,6 +33,8 @@ void setup() {
 }
 
 void loop() {
+
+  password = "7890";
   char key = keypad.getKey();
 
   if (key) {
@@ -53,10 +55,11 @@ void loop() {
         delay(500);
         lcd.clear();
 
-        if(input_password == cambioClave) { //ta mallllll
+       if(input_password == cambioClave) { //ta mallllll
+          Serial.println("ingrese nueva clave");
           password = key;
           Serial.println(password);
-        }
+        } 
 
       } else {
         Serial.println("The password is incorrect, ACCESS DENIED!");
