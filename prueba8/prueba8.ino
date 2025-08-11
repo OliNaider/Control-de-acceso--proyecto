@@ -1,7 +1,7 @@
 #include <Keypad.h>
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+//#include <LiquidCrystal_I2C.h>
+//LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 #define ROW_NUM     4 // four rows
 #define COLUMN_NUM  4 // three columns
@@ -13,8 +13,8 @@ char keys[ROW_NUM][COLUMN_NUM] = {
   {'*', '0', '#', 'D'}
 };
 
-byte pin_rows[ROW_NUM] = {12, 11, 10, 9}; // GPIO18, GPIO5, GPIO17, GPIO16 connect to the row pins
-byte pin_column[COLUMN_NUM] = {8, 7, 6, 5};  // GPIO4, GPIO0, GPIO2 connect to the column pins
+byte pin_rows[ROW_NUM] = {32, 33, 25, 26}; // GPIO18, GPIO5, GPIO17, GPIO16 connect to the row pins
+byte pin_column[COLUMN_NUM] = {27, 14, 12, 13};  // GPIO4, GPIO0, GPIO2 connect to the column pins
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
  
@@ -28,13 +28,13 @@ unsigned long tiempoDeInicio = 0;
 unsigned long duracionBloqueo = 5000;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   input_password.reserve(32); // maximum input characters is 33 (keypad)
   Wire.begin();
 
-  lcd.init();
-  lcd.clear();
-  lcd.backlight();  
+  //lcd.init();
+  //lcd.clear();
+  //lcd.backlight();  
 }
 
 void loop() {
@@ -54,13 +54,13 @@ void loop() {
   if (key) {
     
     Serial.println(key);  
-    lcd.print("*");
+    //lcd.print("*");
 
     switch (key) {
 
       case '*':
         input_password = ""; // limpiar input password
-        lcd.clear();
+        //lcd.clear();
         Serial.println(password);
         break;
 
@@ -68,12 +68,12 @@ void loop() {
         if(estado == 0) {
           if (password == input_password) {
             Serial.println("The password is correct, ACCESS GRANTED!");
-            lcd.clear();
-            lcd.print("The password is");
-            lcd.setCursor(2, 1);
-            lcd.print("correct");
-            delay(500);
-            lcd.clear();
+            //lcd.clear();
+            //lcd.print("The password is");
+            //lcd.setCursor(2, 1);
+            //lcd.print("correct");
+            //delay(500);
+            //lcd.clear();
 
             estado = 1;
             intentos = 0; 
@@ -83,12 +83,12 @@ void loop() {
 
           } else {
             Serial.println("The password is incorrect, ACCESS DENIED!");
-            lcd.clear();
-            lcd.print("The password is incorrect");
-            lcd.setCursor(2, 1);
-            lcd.print("incorrect");
-            delay(500);
-            lcd.clear();
+            //lcd.clear();
+            //lcd.print("The password is incorrect");
+            //lcd.setCursor(2, 1);
+            //lcd.print("incorrect");
+            //delay(500);
+            //lcd.clear();
 
             intentos++;
             Serial.println(intentos);
