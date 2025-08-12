@@ -20,7 +20,7 @@
 //#define AUTHOR_EMAIL "tu_correo@gmail.com"
 //#define AUTHOR_PASSWORD "XXXXXXXXX"
 #define AUTHOR_EMAIL "IngresoSeguridadControl@gmail.com"
-#define AUTHOR_PASSWORD "ISCcontraseña"
+#define AUTHOR_PASSWORD "kvye pqwj sbkc xkpo"
 
 // Declaramos una variable para referenciar la sesión SMTP 
 SMTPSession smtp;
