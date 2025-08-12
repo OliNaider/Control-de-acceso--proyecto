@@ -2,8 +2,8 @@
 #include <ESP_Mail_Client.h>
 
 // WiFi
-#define WIFI_SSID "IoTB"
-#define WIFI_PASSWORD "inventaronelVAR"
+#define WIFI_SSID "carro2600"
+#define WIFI_PASSWORD "colchones301"
 
 // Nombre servidor smtp
 #define SMTP_HOST "smtp.gmail.com"
