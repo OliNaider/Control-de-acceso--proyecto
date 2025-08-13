@@ -12,6 +12,7 @@ void setup(void)
  Serial.begin(115200);
  Serial.println("System initialized");
  nfc.begin();
+ Wire.begin(21, 22);
 }
  
 void loop() 
