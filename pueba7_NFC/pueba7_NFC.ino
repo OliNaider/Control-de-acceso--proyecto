@@ -13,11 +13,20 @@ void setup(void)
  Serial.println("System initialized");
  nfc.begin();
  Wire.begin(21, 22);
+ Wire.setClock(100000);
 }
  
 void loop() 
 {
  readNFC();
+
+  if(tagId == "B3 09 5F 1A") {
+   Serial.println("TARJETA");
+ } else if(tagId == ""){
+   Serial.println("NO TARJETA");
+ } else {
+    Serial.println("TARJETA QUE NO NOS IMPORTA");
+ }
 }
  
 void readNFC() 
