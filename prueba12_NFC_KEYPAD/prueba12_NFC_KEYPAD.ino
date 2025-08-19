@@ -25,16 +25,17 @@ byte pin_column[COLUMN_NUM] = {27, 14, 12, 13};  // GPIO4, GPIO0, GPIO2 connect 
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
  
+//KEYPAD 
 String input_password;
 const String cambioClave = "123";
 String password = "7890";
-int estado = 0;
+int estadoK = 0;
 int intentos = 0;
 
 unsigned long tiempoDeInicio = 0; 
 unsigned long duracionBloqueo = 5000;
 
-
+//NFC
 const int MAX_TAGS = 20; // máximo de tarjetas que se pueden guardar
 String authorizedTags[MAX_TAGS]; // array de UIDs
 int tagIDs[MAX_TAGS];            // array paralelo de IDs
@@ -53,11 +54,22 @@ void setup() {
 }
 
 void loop() {
-  char key = keypad.getKey();
 
-  if(estado == 3) {
+  char key = keypad.getKey();
+  readNFC();
+
+  int BLABLA = encontrarTag(tagId);
+
+  if(BLABLA == 1){
+    //la tarjeta esta autorizada 
+  } else if (BLABLA == -1) {
+    //la trjeta no esta autorizada 
+    //estadoN = 1 --> que te mande a auntorizarla (tenes que poner un codigo especifico) o que sea incorrecta 
+  }
+
+  if(estadoK == 3) {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
-      estado = 0;
+      estadoK = 0;
       intentos = 0;
       Serial.println("sistema desbloqueado");
     } else {
@@ -80,8 +92,8 @@ void loop() {
         break;
 
       case '#':
-        if(estado == 0) {
-          if (password == input_password) {
+        if(estadoK == 0) {
+          if (password == input_password) { 
             Serial.println("The password is correct, ACCESS GRANTED!");
             //lcd.clear();
             //lcd.print("The password is");
@@ -90,11 +102,11 @@ void loop() {
             //delay(500);
             //lcd.clear();
 
-            estado = 1;
+            estadoK = 1;
             intentos = 0; 
 
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
 
           } else {
             Serial.println("The password is incorrect, ACCESS DENIED!");
@@ -108,10 +120,10 @@ void loop() {
             intentos++;
             Serial.println(intentos);
             if(intentos >= 5){
-              estado = 3;
+              estadoK = 3;
               tiempoDeInicio = millis();
             } else {
-              estado = 0;
+              estadoK = 0;
               Serial.println(estado);
               Serial.println(password);
             }
@@ -123,9 +135,9 @@ void loop() {
         } else if(estado == 1){
           if(input_password == "123"){
             Serial.println("ingrese la nueva clave");
-            estado = 2;
+            estadoK = 2;
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
 
           } else if(input_password == "456"){
             Serial.println("ingrese nueva tarjeta");
@@ -134,7 +146,7 @@ void loop() {
             estado = 0;
             Serial.println("no se ha cambiado la clave");
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
           }
 
           input_password = "";
@@ -144,8 +156,8 @@ void loop() {
           Serial.println(password);
           Serial.println("clave cambiada");
           Serial.println(password);
-          estado = 0;
-          Serial.println(estado);
+          estadoK = 0;
+          Serial.println(estadoK);
 
           input_password = "";
         }
@@ -168,3 +180,14 @@ void readNFC()
     tagId = tag.getUidString();
     tagId.toUpperCase();
   } 
+}  
+
+int econtrarTag(String tag) {
+  for(int i = 0; i< tagCount; i++){
+    if(authorizedTags[i] == tag) {
+      return 1;
+    } else{
+      return -1;
+    }
+  }
+}
