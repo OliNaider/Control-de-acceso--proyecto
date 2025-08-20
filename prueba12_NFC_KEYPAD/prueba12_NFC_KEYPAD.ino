@@ -5,6 +5,7 @@
 #include <PN532_I2C.h>
 #include <PN532.h>
 #include <NfcAdapter.h>
+
 PN532_I2C pn532_i2c(Wire);
 NfcAdapter nfc = NfcAdapter(pn532_i2c);
 
@@ -42,7 +43,7 @@ int tagIDs[MAX_TAGS];            // array paralelo de IDs
 int tagCount = 0;                // cuántas tarjetas hay guardadas
 int nextID = 1;                  // próximo ID a asignar
 String tagId = "";
-estadoN = 0;
+int estadoN = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -116,7 +117,7 @@ void loop() {
               tiempoDeInicio = millis();
             } else {
               estadoK = 0;
-              Serial.println(estado);
+              Serial.println(estadoK);
               Serial.println(password);
             }
 
@@ -124,7 +125,7 @@ void loop() {
 
           input_password = "";
 
-        } else if(estado == 1){
+        } else if(estadoK == 1){
           if(input_password == "123"){
             Serial.println("ingrese la nueva clave");
             estadoK = 2;
@@ -135,7 +136,7 @@ void loop() {
             Serial.println("ingrese nueva tarjeta");
 
           } else {
-            estado = 0;
+            estadoK = 0;
             Serial.println("no se ha cambiado la clave");
             Serial.println(password);
             Serial.println(estadoK);
@@ -143,7 +144,7 @@ void loop() {
 
           input_password = "";
 
-        }else if(estado == 2) {
+        }else if(estadoK == 2) {
           password = input_password;
           Serial.println(password);
           Serial.println("clave cambiada");
@@ -169,7 +170,7 @@ void loop() {
   } else if (BLABLA == -1) {
     //la trjeta no esta autorizada 
     //estadoN = 1 --> que te mande a auntorizarla (tenes que poner un codigo especifico) o que sea incorrecta 
-    estadoN = 1
+    estadoN = 1;
   }
 
   if (estadoN == 1) {
@@ -205,9 +206,10 @@ void readNFC() {
     tagId = tag.getUidString();
     tagId.toUpperCase();
   } 
+  delay(500);
 }  
 
-int econtrarTag(String tag) {
+int encontrarTag(String tag) {
   for(int i = 0; i< tagCount; i++){
     if(authorizedTags[i] == tag) {
       return 1;
