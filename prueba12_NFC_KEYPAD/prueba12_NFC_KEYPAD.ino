@@ -216,3 +216,7 @@ int econtrarTag(String tag) {
     }
   }
 }
+
+void removeTag(int id) {
+  //desacreditar una tarjeta usando el id
+}
