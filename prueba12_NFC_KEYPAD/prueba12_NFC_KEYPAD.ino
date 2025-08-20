@@ -42,6 +42,7 @@ int tagIDs[MAX_TAGS];            // array paralelo de IDs
 int tagCount = 0;                // cuántas tarjetas hay guardadas
 int nextID = 1;                  // próximo ID a asignar
 String tagId = "";
+estadoN = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -58,24 +59,15 @@ void loop() {
   char key = keypad.getKey();
   readNFC();
 
-  int BLABLA = encontrarTag(tagId);
-
-  if(BLABLA == 1){
-    //la tarjeta esta autorizada 
-  } else if (BLABLA == -1) {
-    //la trjeta no esta autorizada 
-    //estadoN = 1 --> que te mande a auntorizarla (tenes que poner un codigo especifico) o que sea incorrecta 
-  }
-
   if(estadoK == 3) {
-    if((millis() - tiempoDeInicio) >= duracionBloqueo) {
-      estadoK = 0;
-      intentos = 0;
-      Serial.println("sistema desbloqueado");
-    } else {
-      Serial.println("SISTEMA BLOQUEADO");
-    }
-    return;
+  if((millis() - tiempoDeInicio) >= duracionBloqueo) {
+    estadoK = 0;
+    intentos = 0;
+    Serial.println("sistema desbloqueado");
+  } else {
+    Serial.println("SISTEMA BLOQUEADO");
+  }
+  return;
   }
 
   if (key) {
@@ -169,11 +161,44 @@ void loop() {
         break;
     } 
   }
+
+  int BLABLA = encontrarTag(tagId);
+
+  if(BLABLA == 1){
+    //la tarjeta esta autorizada 
+  } else if (BLABLA == -1) {
+    //la trjeta no esta autorizada 
+    //estadoN = 1 --> que te mande a auntorizarla (tenes que poner un codigo especifico) o que sea incorrecta 
+    estadoN = 1
+  }
+
+  if (estadoN == 1) {
+    if(input_password == "456") {
+      //acreditar tarjeta 
+      if (tagCount < MAX_TAGS) {
+        authorizedTags[tagCount] = tagId;
+        tagIDs[tagCount] = nextID;
+        Serial.print("Tarjeta agregada: ");
+        Serial.print(tagId);
+        Serial.print(" con ID ");
+        Serial.println(nextID);
+
+        tagCount++;
+        nextID++;
+
+        estadoN = 0;
+      } else {
+        Serial.println("No hay espacio para más tarjetas");
+      }
+    } else {
+      estadoN = 0;
+      Serial.println("tarjeta no autorizada");
+    }
+  }
 }
 
 
-void readNFC() 
-{
+void readNFC() {
   if (nfc.tagPresent()) {
     NfcTag tag = nfc.read();
     tag.print();
