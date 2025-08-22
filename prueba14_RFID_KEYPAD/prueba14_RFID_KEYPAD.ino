@@ -72,11 +72,10 @@ void loop() {
     return;
   }
 
-  if (!mfrc522.PICC_IsNewCardPresent() && !mfrc522.PICC_ReadCardSerial()) {
-    String uid = getUID();
+  if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+    uid = getUID();
     Serial.print("UID leído: ");
     Serial.println(uid);
-    return;
   }
 
   if (key) {
@@ -144,27 +143,38 @@ void loop() {
 
           } else if (input_password == "456") {
             //acreditar tarjeta y asignarle un ID
+            while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
+            }  
+            uid = getUID();
+            Serial.print("UID leído: ");
+            Serial.println(uid);
             int BLABLA = encontrarTag(uid);
             if(BLABLA == -1) {
+              Serial.println("la tarjeta es nueva");
+
               if (tagCount < MAX_TAGS) {
-                authorizedTags[0] = uid; 
+                Serial.println("autorizando tarjeta");
+                authorizedTags[tagCount] = uid; 
                 Serial.println();
-                Serial.print("tarjeta autorizada: ")
-                Serial.println(authorizedTags[0]);
-                authorizedIDs[0] = nextID;
+                Serial.print("tarjeta autorizada: ");
+                Serial.println(authorizedTags[tagCount]);
+                authorizedIDs[tagCount] = nextID;
                 Serial.print("con el ID: ");
-                Serial.println(authorizedIDs[0]);
+                Serial.println(authorizedIDs[tagCount]);
 
                 nextID++;
                 tagCount++;
                 estado = 0;
                 uid = "";
+              }  
 
-              }
             } else {
-              Serial.println("Esta tarjeta ya esta autorizada")
+              Serial.println("Esta tarjeta ya esta autorizada");
+              estado = 0;
             }
             
+            estado = 0;
+            delay(1000);
 
           } else {
             estado = 0;
@@ -194,7 +204,7 @@ void loop() {
     } 
   }
 
-  
+  //if(uid == authorized)
 
 
 }
@@ -212,9 +222,20 @@ String getUID() {
 int encontrarTag(String tag) {
   for(int i = 0; i < tagCount; i++) {
     if(authorizedTags[i] == tag) {
-      return 1;  // encontrada
+      return i;  // encontrada
     }
   }
   return -1; // no encontrada
 }
 
+
+void leerTag() {
+  
+  if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+    uid = getUID();
+    Serial.print("UID leído: ");
+    Serial.println(uid);
+    delay(1000);
+  }
+  delay(1000);
+}
