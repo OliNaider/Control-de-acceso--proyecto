@@ -34,6 +34,7 @@ int intentos = 0;
 
 unsigned long tiempoDeInicio = 0; 
 unsigned long duracionBloqueo = 5000;
+unsigned long duracionCambios = 10000;
 
 //NFC
 const int MAX_TAGS = 20; // máximo de tarjetas que se pueden guardar
@@ -70,6 +71,11 @@ void loop() {
       Serial.println("SISTEMA BLOQUEADO");
     }
     return;
+  }
+
+  if (estado == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
+    Serial.println("Tiempo agotado, volviendo a estado 0");
+    estado = 0;
   }
 
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
@@ -109,6 +115,8 @@ void loop() {
 
             Serial.println(password);
             Serial.println(estado);
+            
+            tiempoDeInicio = millis();
 
           } else {
             Serial.println("The password is incorrect, ACCESS DENIED!");
