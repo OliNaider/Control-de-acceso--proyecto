@@ -217,7 +217,7 @@ void loop() {
   
   if(estadoN == 1){
     int index = encontrarTag(uid);
-    if(index == 1) {
+    if(index != -1) {
       Serial.print("TARJETA CORRECTA. INGRESE!!!!");
       Serial.println(authorizedTags[index]);
       uid = "";
@@ -245,12 +245,11 @@ String getUID() {
 int encontrarTag(String tag) {
   for(int i = 0; i < tagCount; i++) {
     if(authorizedTags[i] == tag) {
-      return 1;  // encontrada
+      return i;  // encontrada
     }
   }
   return -1; // no encontrada
 }
-
 
 void leerTag() {
   
