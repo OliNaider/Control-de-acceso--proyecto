@@ -76,6 +76,8 @@ void loop() {
     uid = getUID();
     Serial.print("UID leído: ");
     Serial.println(uid);
+    delay(1000);
+    estadoN = 1; 
   }
 
   if (key) {
@@ -204,7 +206,20 @@ void loop() {
     } 
   }
 
-  //if(uid == authorized)
+  
+  if(estadoN == 1){
+    int index = encontrarTag(uid);
+    if(index == 1) {
+      Serial.print("TARJETA CORRECTA. INGRESE!!!!");
+      Serial.println(authorizedTags[index]);
+      uid = "";
+      estadoN = 0;
+    } else {
+      Serial.println("TARJETA INCORRECTA");
+      uid = "";
+      estadoN = 0;
+    }
+  }
 
 
 }
@@ -222,7 +237,7 @@ String getUID() {
 int encontrarTag(String tag) {
   for(int i = 0; i < tagCount; i++) {
     if(authorizedTags[i] == tag) {
-      return i;  // encontrada
+      return 1;  // encontrada
     }
   }
   return -1; // no encontrada
