@@ -186,7 +186,11 @@ void loop() {
             estado = 0;
             delay(1000);
 
-          } else {
+          } else if(input_password == "ABC"){
+            //desacreditar tarjeta 
+
+
+          }else {
             estado = 0;
             Serial.println("no se ha cambiado la clave");
             Serial.println(password);
@@ -260,4 +264,16 @@ void leerTag() {
     delay(1000);
   }
   delay(1000);
+}
+
+void eliminarTag(int ID) {
+  for(int i = 0; i < tagCount; i++) {
+    if(authorizedIDs[i] == ID) {
+      for (int j = i; j < tagCount - 1; j++) {
+        authorizedTags[j] = authorizedTags[j + 1];
+        authorizedIDs[j] = authorizedIDs[j + 1];
+      }
+      tagCount--;
+    }
+  }
 }
