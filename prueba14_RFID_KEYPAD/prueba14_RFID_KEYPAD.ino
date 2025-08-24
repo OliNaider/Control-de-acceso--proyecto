@@ -29,7 +29,7 @@ Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_
 String input_password;
 const String cambioClave = "123";
 String password = "7890";
-int estado = 0;
+int estadoK = 0;
 int intentos = 0;
 
 unsigned long tiempoDeInicio = 0; 
@@ -62,9 +62,9 @@ void setup() {
 void loop() {
   char key = keypad.getKey();
 
-  if(estado == 3) {
+  if(estadoK == 3) {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
-      estado = 0;
+      estadoK = 0;
       intentos = 0;
       Serial.println("sistema desbloqueado");
     } else {
@@ -73,9 +73,9 @@ void loop() {
     return;
   }
 
-  if (estado == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
+  if (estadoK == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
     Serial.println("Tiempo agotado, volviendo a estado 0");
-    estado = 0;
+    estadoK = 0;
   }
 
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
@@ -100,7 +100,7 @@ void loop() {
         break;
 
       case '#':
-        if(estado == 0) {
+        if(estadoK == 0) {
           if (password == input_password) {
             Serial.println("The password is correct, ACCESS GRANTED!");
             //lcd.clear();
@@ -110,11 +110,11 @@ void loop() {
             //delay(500);
             //lcd.clear();
 
-            estado = 1;
+            estadoK = 1;
             intentos = 0; 
 
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
             
             tiempoDeInicio = millis();
 
@@ -130,11 +130,11 @@ void loop() {
             intentos++;
             Serial.println(intentos);
             if(intentos >= 5){
-              estado = 3;
+              estadoK = 3;
               tiempoDeInicio = millis();
             } else {
-              estado = 0;
-              Serial.println(estado);
+              estadoK = 0;
+              Serial.println(estadoK);
               Serial.println(password);
             }
 
@@ -142,13 +142,13 @@ void loop() {
 
           input_password = "";
 
-        } else if(estado == 1){
+        } else if(estadoK == 1){
           if(input_password == "123"){
             //ingresar nueva clave
             Serial.println("ingrese la nueva clave");
-            estado = 2;
+            estadoK = 2;
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
 
 
           } else if (input_password == "456") {
@@ -174,27 +174,31 @@ void loop() {
 
                 nextID++;
                 tagCount++;
-                estado = 0;
+                estadoK = 0;
                 uid = "";
               }  
 
             } else {
               Serial.println("Esta tarjeta ya esta autorizada");
-              estado = 0;
+              estadoK = 0;
             }
             
-            estado = 0;
+            estadoK = 0;
             delay(1000);
 
           } else if(input_password == "ABC"){
             //desacreditar tarjeta 
+            Serial.println("Ingrese ID de la tarjeta que desea eliminar");
+            estadoN = 2;
+            estadoK = 0;
+            input_password = "";
 
 
           }else {
-            estado = 0;
+            estadoK = 0;
             Serial.println("no se ha cambiado la clave");
             Serial.println(password);
-            Serial.println(estado);
+            Serial.println(estadoK);
           }
 
           input_password = "";
@@ -204,8 +208,8 @@ void loop() {
           Serial.println(password);
           Serial.println("clave cambiada");
           Serial.println(password);
-          estado = 0;
-          Serial.println(estado);
+          estadoK = 0;
+          Serial.println(estadoK);
 
           input_password = "";
         }
@@ -231,6 +235,9 @@ void loop() {
       uid = "";
       estadoN = 0;
     }
+  } else if(estadoN == 2) {
+    int eliminarID = input_password.toInt();
+    eliminarTag(eliminarID);
   }
 
 
@@ -274,6 +281,7 @@ void eliminarTag(int ID) {
         authorizedIDs[j] = authorizedIDs[j + 1];
       }
       tagCount--;
+      Serial.println("Eliminacion completada");
     }
   }
 }
