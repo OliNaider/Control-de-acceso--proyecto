@@ -193,6 +193,17 @@ void loop() {
             input_password = "";
 
 
+          } else if(input_password == "BCD"){
+            //mostrar ID
+            Serial.println("acerque la tarjeta");
+            while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
+            }  
+            uid = getUID();
+            Serial.println(uid);
+            authorizedIDs[tagCount];
+
+
+
           }else {
             estadoK = 0;
             Serial.println("no se ha cambiado la clave");
