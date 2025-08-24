@@ -189,8 +189,7 @@ void loop() {
           } else if(input_password == "ABC"){
             //desacreditar tarjeta 
             Serial.println("Ingrese ID de la tarjeta que desea eliminar");
-            estadoN = 2;
-            estadoK = 0;
+            estadoK = 4;
             input_password = "";
 
 
@@ -203,7 +202,7 @@ void loop() {
 
           input_password = "";
 
-        }else if(estado == 2) {
+        }else if(estadoK == 2) {
           password = input_password;
           Serial.println(password);
           Serial.println("clave cambiada");
@@ -211,6 +210,11 @@ void loop() {
           estadoK = 0;
           Serial.println(estadoK);
 
+          input_password = "";
+        } else if(estadoK == 4) {
+          int eliminarID = input_password.toInt();
+          eliminarTag(eliminarID);
+          estadoK = 0;
           input_password = "";
         }
 
@@ -235,10 +239,7 @@ void loop() {
       uid = "";
       estadoN = 0;
     }
-  } else if(estadoN == 2) {
-    int eliminarID = input_password.toInt();
-    eliminarTag(eliminarID);
-  }
+  } 
 
 
 }
