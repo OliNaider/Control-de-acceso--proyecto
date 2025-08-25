@@ -44,6 +44,7 @@ int tagCount = 0;                // cuántas tarjetas hay guardadas
 int nextID = 1;                  // próximo ID a asignar
 String uid = "";
 int estadoN = 0;
+int ID = 0; 
 
 void setup() {
   Serial.begin(115200);
@@ -198,10 +199,23 @@ void loop() {
             Serial.println("acerque la tarjeta");
             while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
             }  
+
             uid = getUID();
             Serial.println(uid);
-            authorizedIDs[tagCount];
-
+            int BLABLA = encontrarTag(uid);
+            if(BLABLA == -1) {
+              Serial.println("Tarjeta sin ID asignado");
+              delay(5000);
+              input_password = "";
+              estadoK = 0;           
+            } else {
+              encontrarID(uid);
+              Serial.print("Con el ID: ");
+              Serial.println(ID);
+              delay(5000);
+              input_password = "";
+              estadoK = 0; 
+            }
 
 
           }else {
@@ -294,6 +308,14 @@ void eliminarTag(int ID) {
       }
       tagCount--;
       Serial.println("Eliminacion completada");
+    }
+  }
+}
+
+void encontrarID(String tag) {
+  for(int i = 0; i < tagCount; i++) {
+    if (authorizedTags[i] == tag) {
+      ID = authorizedIDs[i];
     }
   }
 }
