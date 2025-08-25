@@ -289,7 +289,6 @@ int encontrarTag(String tag) {
 }
 
 void leerTag() {
-  
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
     uid = getUID();
     Serial.print("UID leído: ");
