@@ -52,7 +52,8 @@ void setup() {
 void loop() {
   // Preparar el mensaje
   strcpy(myData.msg, "Hola desde ESP32 🚀");
-
+  delay(1000);
+  strcpy(myData.msg, "BLABLABALBAL");
   // Enviar mensaje
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 

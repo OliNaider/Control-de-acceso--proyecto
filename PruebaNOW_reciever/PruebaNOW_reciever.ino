@@ -24,7 +24,6 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingDataBytes,
 
 void setup() {
   Serial.begin(115200);
-
   WiFi.mode(WIFI_STA);
 
   if (esp_now_init() != ESP_OK) {
