@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
+
 // Dirección MAC del receptor (ESP32-CAM)
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};
 
@@ -24,17 +25,8 @@ void setup() {
 
 void loop() {
   mensaje1();
-  delay(1000);
-  strcpy(myData.msg, "BLABLABALBAL");
-  esp_err_t result2 = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-
-  //if (result == ESP_OK) {
-   // Serial.println("Mensaje enviado...");
-  //} //else {
-    //Serial.println("Error al enviar ❌");
-  //}
-
-  delay(2000); // espera 2 segundos entre envíos
+  delay(5000);
+  
 }
 
 void registrarPeer() {
@@ -46,6 +38,6 @@ void registrarPeer() {
 }
 
 void mensaje1() {
-  strcpy(myData.msg, "Hola desde ESP32 🚀");
+  strcpy(myData.msg, "FOTO");
   esp_err_t result1 = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 }
