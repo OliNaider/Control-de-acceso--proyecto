@@ -1,15 +1,8 @@
 #include "esp_camera.h"
 #include <WiFi.h>
-
-// ===========================
-// Select camera model in board_config.h
-// ===========================
-
 #include "board_config.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
+//wifi
 const char *ssid = "moto g(7) plus 5062";
 const char *password = "0afa3b8c20d8";
 
@@ -81,7 +74,7 @@ void setup() {
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
-#endif
+
 
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
@@ -99,7 +92,7 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-}
+
 
 void loop() {
   // Do nothing. Everything is done in another task by the web server
