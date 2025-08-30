@@ -3,41 +3,52 @@
 #include "board_config.h"
 #include <esp_now.h>
 
-//CAMARA: 
-//wifi
+// ==== WIFI para streaming ====
 const char *ssid = "moto g(7) plus 5062";
 const char *password = "0afa3b8c20d8";
 void startCameraServer();
 
-//ESP-NOW:
-// Estructura del mensaje
+// ==== ESP-NOW ====
 typedef struct struct_message {
   char msg[32];
 } struct_message;
+
 struct_message incomingData;
 String datosRecibidos = "";
 
+// Callback ESP-NOW
 void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingDataBytes, int len) {
   memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
+  Serial.print("ESP-NOW recibido: ");
   Serial.println(incomingData.msg);
   datosRecibidos = incomingData.msg;
 }
 
 void setup() {
   Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  Serial.println();
 
-  //ESP-NOW
+  // ==== MODO WIFI MIXTO (AP + STA) ====
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
+
+  Serial.print("Conectando a WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi conectado");
+
+  // ==== INICIO ESP-NOW ====
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error iniciando ESP-NOW");
     return;
   }
-  // Registrar callback de recepción
   esp_now_register_recv_cb(OnDataRecv);
 
-  //CAMARA
-  Serial.setDebugOutput(true);
-  Serial.println();
-
+  // ==== INICIO CÁMARA ====
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -59,93 +70,36 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.frame_size = FRAMESIZE_UXGA;
-  config.pixel_format = PIXFORMAT_JPEG;  // for streaming
-  //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
+  config.pixel_format = PIXFORMAT_JPEG;  
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 12;
   config.fb_count = 1;
 
-  // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
-  //                      for larger pre-allocated frame buffer.
-  if (config.pixel_format == PIXFORMAT_JPEG) {
-    if (psramFound()) {
-      config.jpeg_quality = 10;
-      config.fb_count = 2;
-      config.grab_mode = CAMERA_GRAB_LATEST;
-    } else {
-      // Limit the frame size when PSRAM is not available
-      config.frame_size = FRAMESIZE_SVGA;
-      config.fb_location = CAMERA_FB_IN_DRAM;
-    }
-  } else {
-    // Best option for face detection/recognition
-    config.frame_size = FRAMESIZE_240X240;
-#if CONFIG_IDF_TARGET_ESP32S3
+  if (psramFound()) {
+    config.jpeg_quality = 10;
     config.fb_count = 2;
-#endif
+    config.grab_mode = CAMERA_GRAB_LATEST;
+  } else {
+    config.frame_size = FRAMESIZE_SVGA;
+    config.fb_location = CAMERA_FB_IN_DRAM;
   }
 
-#if defined(CAMERA_MODEL_ESP_EYE)
-  pinMode(13, INPUT_PULLUP);
-  pinMode(14, INPUT_PULLUP);
-#endif
-
-  // camera init
-  esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) {
-    Serial.printf("Camera init failed with error 0x%x", err);
+  if (esp_camera_init(&config) != ESP_OK) {
+    Serial.println("Error iniciando la cámara");
     return;
   }
-
-  sensor_t *s = esp_camera_sensor_get();
-  // initial sensors are flipped vertically and colors are a bit saturated
-  if (s->id.PID == OV3660_PID) {
-    s->set_vflip(s, 1);        // flip it back
-    s->set_brightness(s, 1);   // up the brightness just a bit
-    s->set_saturation(s, -2);  // lower the saturation
-  }
-  // drop down frame size for higher initial frame rate
-  if (config.pixel_format == PIXFORMAT_JPEG) {
-    s->set_framesize(s, FRAMESIZE_QVGA);
-  }
-
-#if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
-  s->set_vflip(s, 1);
-  s->set_hmirror(s, 1);
-#endif
-
-#if defined(CAMERA_MODEL_ESP32S3_EYE)
-  s->set_vflip(s, 1);
-#endif
-
-// Setup LED FLash if LED pin is defined in camera_pins.h
-
-
-  WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
-
-  Serial.print("WiFi connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
 
   startCameraServer();
 
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
-  Serial.println("' to connect");
+  Serial.println("' para conectar");
 }
 
 void loop() {
-  // Do nothing. Everything is done in another task by the web server
-  delay(10000);
-  
-  if(datosRecibidos == "FOTO") {
+  if (datosRecibidos == "FOTO") {
     Serial.println("fotito");
-    delay(2000);
+    datosRecibidos = "";  // limpiar para que no se repita
   }
 }
