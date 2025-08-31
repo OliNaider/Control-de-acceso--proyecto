@@ -1,38 +1,3 @@
-
-/**
- * Created by K. Suwatchai (Mobizt)
- *
- * Email: suwatchai@outlook.com
- *
- * Github: https://github.com/mobizt/ESP-Mail-Client
- *
- * Copyright (c) 2023 mobizt
- */
-
-/**
- * This example shows how to send Email with inline image from ESP32 camera module.
- *
- * The ESP32 board used in this example is ESP32 PSRAM Timer Camera X (OV3660).
- */
-
-/** Note for library update from v2.x.x to v3.x.x.
- *
- *  Struct data names changed
- *
- * "ESP_Mail_Session" changes to "Session_Config"
- * "IMAP_Config" changes to "IMAP_Data"
- *
- * Changes in the examples
- *
- * ESP_Mail_Session session;
- * to
- * Session_Config config;
- *
- * IMAP_Config config;
- * to
- * IMAP_Data imap_data;
- */
-
 #include <Arduino.h>
 #if defined(ESP32)
 #include <WiFi.h>
@@ -42,52 +7,14 @@
 
 #include "esp_camera.h"
 
-// ===================
-// Select camera model
-// ===================
-// #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-//#define CAMERA_MODEL_ESP_EYE // Has PSRAM
-// #define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
-// #define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
-// #define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
-// #define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
-// #define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
-// #define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-// #define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
-// #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
-//  ** Espressif Internal Boards **
-// #define CAMERA_MODEL_ESP32_CAM_BOARD
-// #define CAMERA_MODEL_ESP32S2_CAM_BOARD
-// #define CAMERA_MODEL_ESP32S3_CAM_LCD
-// #define CAMERA_MODEL_DFRobot_FireBeetle2_ESP32S3 // Has PSRAM
-// #define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
-
-// The camera_pins.h was taken from
-// https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Camera/CameraWebServer
 
 #define WIFI_SSID "IoTB"
 #define WIFI_PASSWORD "inventaronelVAR"
 
-/** For Gmail, the app password will be used for log in
- *  Check out https://github.com/mobizt/ESP-Mail-Client#gmail-smtp-and-imap-required-app-passwords-to-sign-in
- *
- * For Yahoo mail, log in to your yahoo mail in web browser and generate app password by go to
- * https://login.yahoo.com/account/security/app-passwords/add/confirm?src=noSrc
- *
- * To use Gmai and Yahoo's App Password to sign in, define the AUTHOR_PASSWORD with your App Password
- * and AUTHOR_EMAIL with your account email.
- */
-
-/** The smtp host name e.g. smtp.gmail.com for GMail or smtp.office365.com for Outlook or smtp.mail.yahoo.com */
 #define SMTP_HOST "smtp.gmail.com"
 
-/** The smtp port e.g.
- * 25  or esp_mail_smtp_port_25
- * 465 or esp_mail_smtp_port_465
- * 587 or esp_mail_smtp_port_587
- */
 #define SMTP_PORT esp_mail_smtp_port_587
 
 /* The log in credentials */
