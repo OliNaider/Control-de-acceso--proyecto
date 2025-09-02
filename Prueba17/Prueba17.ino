@@ -124,9 +124,10 @@ void setup() {
 void loop() {
   if (datosRecibidos == "FOTO") {
     Serial.println("fotito");
-    datosRecibidos = "";  // limpiar para que no se repita
     capturePhotoSaveLittleFS();
     sendPhoto();
+
+    datosRecibidos = "";
   }
 }
 

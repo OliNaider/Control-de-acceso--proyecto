@@ -14,8 +14,8 @@
 #include <WiFi.h>
 
 // REPLACE WITH YOUR NETWORK CREDENTIALS
-const char* ssid = "moto g(7) plus 5062";
-const char* password = "0afa3b8c20d8";
+const char* ssid = "IoTB";
+const char* password = "inventaronelVAR";
 
 // To send Email using Gmail use port 465 (SSL) and SMTP Server smtp.gmail.com
 // You need to create an email app password
