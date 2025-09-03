@@ -4,8 +4,8 @@
 #include "board_config.h"
 
 //wifi
-const char *ssid = "IoTB";
-const char *password = "inventaronelVAR";
+const char *ssid = "moto g(7) plus 5062";
+const char *password = "0afa3b8c20d8";
 
 void startCameraServer();
 
