@@ -7,11 +7,12 @@
 #include "driver/rtc_io.h"
 #include "soc/rtc_cntl_reg.h"  // Disable brownout problems
 #include <ESP_Mail_Client.h>
-#include <LittleFS.h>
+#include <SPIFFS.h>
+#define ESP_MAIL_DEFAULT_FLASH_FS SPIFFS
 
 // ==== WIFI para streaming ====
-const char *ssid = "moto g(7) plus 5062";
-const char *password = "0afa3b8c20d8";
+const char *ssid = "IoTB";
+const char *password = "inventaronelVAR";
 void startCameraServer();
 
 // ==== ESP-NOW ====
@@ -23,7 +24,7 @@ struct_message incomingData;
 String datosRecibidos = "";
 
 // Callback ESP-NOW
-void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingDataBytes, int len) {
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingDataBytes, int len) {
   memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
   Serial.print("ESP-NOW recibido: ");
   Serial.println(incomingData.msg);
@@ -69,7 +70,13 @@ void setup() {
   esp_now_register_recv_cb(OnDataRecv);
 
   //INICIO littleFS
+  if (!SPIFFS.begin(true)) {
+    Serial.println("Error iniciando SPIFFS");
+  } else {
+    Serial.println("SPIFFS listo!");
+  }
   ESP_MAIL_DEFAULT_FLASH_FS.begin();
+  
 
 
   // ==== INICIO CÁMARA ====
@@ -124,7 +131,7 @@ void setup() {
 void loop() {
   if (datosRecibidos == "FOTO") {
     Serial.println("fotito");
-    capturePhotoSaveLittleFS();
+    capturePhoto();
     sendPhoto();
 
     datosRecibidos = "";
@@ -132,7 +139,7 @@ void loop() {
 }
 
 // Capture Photo and Save it to LittleFS
-void capturePhotoSaveLittleFS( void ) {
+void capturePhoto( void ) {
   // Dispose first pictures because of bad quality
   camera_fb_t* fb = NULL;
   // Skip first 3 frames (increase/decrease number as needed).
@@ -153,7 +160,7 @@ void capturePhotoSaveLittleFS( void ) {
 
   // Photo file name
   Serial.printf("Picture file name: %s\n", FILE_PHOTO_PATH);
-  File file = LittleFS.open(FILE_PHOTO_PATH, FILE_WRITE);
+  File file = SPIFFS.open(FILE_PHOTO_PATH, FILE_WRITE);
 
   // Insert the data in the photo file
   if (!file) {
