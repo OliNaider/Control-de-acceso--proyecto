@@ -7,12 +7,12 @@
 #include "driver/rtc_io.h"
 #include "soc/rtc_cntl_reg.h"  // Disable brownout problems
 #include <ESP_Mail_Client.h>
-#include <SPIFFS.h>
-#define ESP_MAIL_DEFAULT_FLASH_FS SPIFFS
+#include <LittleFS.h> 
+#define ESP_MAIL_DEFAULT_FLASH_FS LittleFS
 
 // ==== WIFI para streaming ====
-const char *ssid = "IoTB";
-const char *password = "inventaronelVAR";
+const char *ssid = "moto g(7) plus 5062";
+const char *password = "blabla123";
 void startCameraServer();
 
 // ==== ESP-NOW ====
@@ -70,14 +70,11 @@ void setup() {
   esp_now_register_recv_cb(OnDataRecv);
 
   //INICIO littleFS
-  if (!SPIFFS.begin(true)) {
-    Serial.println("Error iniciando SPIFFS");
+  if (!LittleFS.begin(true)) {
+    Serial.println("Error iniciando littleFS");
   } else {
-    Serial.println("SPIFFS listo!");
+    Serial.println("LittleFS listo!");
   }
-  ESP_MAIL_DEFAULT_FLASH_FS.begin();
-  
-
 
   // ==== INICIO CÁMARA ====
   camera_config_t config;
@@ -100,10 +97,11 @@ void setup() {
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.frame_size = FRAMESIZE_UXGA;
+  config.frame_size = FRAMESIZE_SVGA;
   config.pixel_format = PIXFORMAT_JPEG;  
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
-  config.fb_location = CAMERA_FB_IN_PSRAM;
+  config.fb_location = CAMERA_FB_IN_DRAM;
+
   config.jpeg_quality = 12;
   config.fb_count = 1;
 
@@ -160,7 +158,7 @@ void capturePhoto( void ) {
 
   // Photo file name
   Serial.printf("Picture file name: %s\n", FILE_PHOTO_PATH);
-  File file = SPIFFS.open(FILE_PHOTO_PATH, FILE_WRITE);
+  File file = LittleFS.open(FILE_PHOTO_PATH, FILE_WRITE);
 
   // Insert the data in the photo file
   if (!file) {
