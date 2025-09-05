@@ -11,20 +11,17 @@ typedef struct estructura {
 } estructura;
 estructura myData;
 
-
-
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   // Inicializar ESP-NOW
   esp_now_init();
-
   registrarPeer();
-
+  mensaje1();
 }
 
 void loop() {
-  mensaje1();
+
   return;
   
 }
@@ -40,4 +37,6 @@ void registrarPeer() {
 void mensaje1() {
   strcpy(myData.msg, "FOTO");
   esp_err_t result1 = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+
 }
+
