@@ -9,10 +9,11 @@
 
 // ==== DEFINICIONES ====
 camera_config_t config;
-httpd_handle_t stream_httpd = NULL; // handler del servidor
+extern httpd_handle_t stream_httpd; 
 
-const char *ssid = "moto g(7) plus 5062";
-const char *password = "blabla123";
+
+const char *ssid = "carro 2600 2.4";
+const char *password = "colchones301";
 
 // ==== ESP-NOW ====
 typedef struct struct_message {
@@ -37,10 +38,10 @@ void smtpCallback(SMTP_Status status);
 
 // ==== FUNCIONES PROTOTIPO ====
 void configuracionCamara();
-void startCameraServer();
 void stopCameraServer();
 void capturePhoto();
 void sendPhoto();
+extern void startCamaraServer();
 
 // ==== CALLBACK ESP-NOW ====
 void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *incomingDataBytes, int len) {
