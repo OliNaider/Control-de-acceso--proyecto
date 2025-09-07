@@ -1,86 +1,54 @@
-/*********
-  Rui Santos & Sara Santos - Random Nerd Tutorials
-  Complete instructions at https://RandomNerdTutorials.com/esp32-cam-projects-ebook/
-  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
-  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*********/
-
 #include "esp_camera.h"
-#include "SPI.h"
-#include "driver/rtc_io.h"
-#include "soc/rtc_cntl_reg.h"  // Disable brownout problems
+#include <WiFi.h>
 #include <ESP_Mail_Client.h>
 #include <LittleFS.h>
-#include <WiFi.h>
 
-// REPLACE WITH YOUR NETWORK CREDENTIALS
-const char* ssid = "CARRO 2600 2.4";
-const char* password = "colchones301";
 
-// To send Email using Gmail use port 465 (SSL) and SMTP Server smtp.gmail.com
-// You need to create an email app password
 #define emailSenderAccount "IngresoSeguridadControl@gmail.com"
 #define emailSenderPassword "kvye pqwj sbkc xkpo"
 #define smtpServer "smtp.gmail.com"
 #define smtpServerPort 465
 #define emailSubject "ESP32-CAM Photo Captured"
 #define emailRecipient "olinaider@gmail.com"
-
-#define CAMERA_MODEL_AI_THINKER
-
-#if defined(CAMERA_MODEL_AI_THINKER)
-  #define PWDN_GPIO_NUM     32
-  #define RESET_GPIO_NUM    -1
-  #define XCLK_GPIO_NUM      0
-  #define SIOD_GPIO_NUM     26
-  #define SIOC_GPIO_NUM     27
-  #define Y9_GPIO_NUM       35
-  #define Y8_GPIO_NUM       34
-  #define Y7_GPIO_NUM       39
-  #define Y6_GPIO_NUM       36
-  #define Y5_GPIO_NUM       21
-  #define Y4_GPIO_NUM       19
-  #define Y3_GPIO_NUM       18
-  #define Y2_GPIO_NUM        5
-  #define VSYNC_GPIO_NUM    25
-  #define HREF_GPIO_NUM     23
-  #define PCLK_GPIO_NUM     22
-#else
-  #error "Camera model not selected"
-#endif
-
-/* The SMTP Session object used for Email sending */
+#define FILE_PHOTO "photo.jpg"
+#define FILE_PHOTO_PATH "/photo.jpg"
 SMTPSession smtp;
-
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status);
 
-// Photo File Name to save in LittleFS
-#define FILE_PHOTO "photo.jpg"
-#define FILE_PHOTO_PATH "/photo.jpg"
+const char* ssid = "CARRO 2600 2.4";
+const char* password = "colchones301";
+
+#define CAMERA_MODEL_AI_THINKER
+#if defined(CAMERA_MODEL_AI_THINKER)
+#define PWDN_GPIO_NUM     32
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM      0
+#define SIOD_GPIO_NUM     26
+#define SIOC_GPIO_NUM     27
+#define Y9_GPIO_NUM       35
+#define Y8_GPIO_NUM       34
+#define Y7_GPIO_NUM       39
+#define Y6_GPIO_NUM       36
+#define Y5_GPIO_NUM       21
+#define Y4_GPIO_NUM       19
+#define Y3_GPIO_NUM       18
+#define Y2_GPIO_NUM        5
+#define VSYNC_GPIO_NUM    25
+#define HREF_GPIO_NUM     23
+#define PCLK_GPIO_NUM     22
+#endif
+
+void startCameraServer();
+void stopCameraServer();
+
+String mensaje = "";
 
 void setup() {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
-  
   Serial.begin(115200);
+  Serial.setDebugOutput(true);
   Serial.println();
 
-  // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi...");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-  
-  // Print ESP32 Local IP Address
-  Serial.print("IP Address: http://");
-  Serial.println(WiFi.localIP());
-
-  // Init filesystem
-  ESP_MAIL_DEFAULT_FLASH_FS.begin();
-   
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -102,32 +70,80 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.grab_mode = CAMERA_GRAB_LATEST;
-  
+  //init with high specs to pre-allocate larger buffers
   if(psramFound()){
     config.frame_size = FRAMESIZE_UXGA;
     config.jpeg_quality = 10;
-    config.fb_count = 1;
+    config.fb_count = 2;
   } else {
     config.frame_size = FRAMESIZE_SVGA;
     config.jpeg_quality = 12;
     config.fb_count = 1;
   }
 
-  // Initialize camera
+  // camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
+
+  //drop down frame size for higher initial frame rate
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_framesize(s, FRAMESIZE_QVGA);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
   
-  capturePhotoSaveLittleFS();
-  sendPhoto();
+  startCameraServer();
+  
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
+
+  ESP_MAIL_DEFAULT_FLASH_FS.begin();
 }
 
 void loop() {
+  // put your main code here, to run repeatedly:
+  delay(10000);
+  if(Serial.available() > 0) {
+    mensaje = Serial.readString();
+    mensaje.trim();
+    Serial.println(mensaje);
+  }
 
+ if(mensaje == "MAIL"){
+    // Tomar foto
+    Serial.println("mail");
+    camera_fb_t * fb = esp_camera_fb_get();
+    if(fb){
+      Serial.println("foto");
+      File file = LittleFS.open(FILE_PHOTO_PATH, FILE_WRITE);
+      if(file){
+        file.write(fb->buf, fb->len);
+        file.close();
+        Serial.println("Foto guardada en LittleFS");
+      }
+      esp_camera_fb_return(fb);
+
+      // Crear task para enviar mail sin bloquear streaming
+      xTaskCreate([](void*){
+        sendPhoto();
+        vTaskDelete(NULL);
+      }, "SendPhotoTask", 8192, NULL, 1, NULL);
+    }
+    mensaje = ""; // reset del comando
+  }
 }
+
+
 
 // Capture Photo and Save it to LittleFS
 void capturePhotoSaveLittleFS( void ) {
@@ -177,19 +193,11 @@ void sendPhoto( void ) {
    * basic debug or 1
   */
   smtp.debug(1);
-
-  /* Set the callback function to get the sending results */
   smtp.callback(smtpCallback);
 
   /* Declare the session config data */
   Session_Config config;
   
-  /*Set the NTP config time
-  For times east of the Prime Meridian use 0-12
-  For times west of the Prime Meridian add 12 to the offset.
-  Ex. American/Denver GMT would be -6. 6 + 12 = 18
-  See https://en.wikipedia.org/wiki/Time_zone for a list of the GMT/UTC timezone offsets
-  */
   config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
   config.time.gmt_offset = -3 * 3600;  // en segundos (-10800)
   config.time.day_light_offset = 0;    // sin horario de verano
@@ -247,7 +255,6 @@ void sendPhoto( void ) {
     Serial.println("Error sending Email, " + smtp.errorReason());
 }
 
-// Callback function to get the Email sending status
 void smtpCallback(SMTP_Status status){
   /* Print the current status */
   Serial.println(status.info());
@@ -279,3 +286,4 @@ void smtpCallback(SMTP_Status status){
    smtp.sendingResult.clear();
   }
 }
+
