@@ -1,9 +1,11 @@
+//LIBRERIAS
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <ESP_Mail_Client.h>
 #include <LittleFS.h>
+#include <esp_now.h>
 
-
+//MAIL
 #define emailSenderAccount "IngresoSeguridadControl@gmail.com"
 #define emailSenderPassword "kvye pqwj sbkc xkpo"
 #define smtpServer "smtp.gmail.com"
@@ -16,9 +18,10 @@ SMTPSession smtp;
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status);
 
-const char* ssid = "CARRO 2600 2.4";
-const char* password = "colchones301";
+const char* ssid = "IoTB";
+const char* password = "inventaronelVAR";
 
+//CAMARA
 #define CAMERA_MODEL_AI_THINKER
 #if defined(CAMERA_MODEL_AI_THINKER)
 #define PWDN_GPIO_NUM     32
@@ -42,7 +45,20 @@ const char* password = "colchones301";
 void startCameraServer();
 void stopCameraServer();
 
-String mensaje = "";
+//ESP-NOW
+typedef struct struct_message {
+  char msg[32];
+} struct_message;
+
+struct_message incomingData;
+String datosRecibidos = "";
+void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingDataBytes, int len) {
+  memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
+  Serial.print("ESP-NOW recibido: ");
+  Serial.println(incomingData.msg);
+  datosRecibidos = incomingData.msg;
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -87,19 +103,26 @@ void setup() {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
-
   //drop down frame size for higher initial frame rate
   sensor_t * s = esp_camera_sensor_get();
   s->set_framesize(s, FRAMESIZE_QVGA);
 
+  //WIFI
+  WiFi.mode(WIFI_AP_STA);
   WiFi.begin(ssid, password);
-
+  WiFi.setSleep(false);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("");
   Serial.println("WiFi connected");
+
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error inicializando ESP-NOW");
+    return;
+  }
+  esp_now_register_recv_cb(OnDataRecv);
   
   startCameraServer();
   
@@ -113,13 +136,8 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   delay(10000);
-  if(Serial.available() > 0) {
-    mensaje = Serial.readString();
-    mensaje.trim();
-    Serial.println(mensaje);
-  }
 
- if(mensaje == "MAIL"){
+ if(datosRecibidos == "MAIL"){
     // Tomar foto
     Serial.println("mail");
     camera_fb_t * fb = esp_camera_fb_get();
@@ -139,7 +157,7 @@ void loop() {
         vTaskDelete(NULL);
       }, "SendPhotoTask", 8192, NULL, 1, NULL);
     }
-    mensaje = ""; // reset del comando
+    datosRecibidos = ""; // reset del comando
   }
 }
 

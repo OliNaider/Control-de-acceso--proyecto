@@ -18,6 +18,7 @@ void setup() {
   esp_now_init();
   registrarPeer();
   mensaje1();
+  Serial.println(myData.msg);
 }
 
 void loop() {
@@ -35,7 +36,7 @@ void registrarPeer() {
 }
 
 void mensaje1() {
-  strcpy(myData.msg, "FOTO");
+  strcpy(myData.msg, "MAIL");
   esp_err_t result1 = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 
 }
