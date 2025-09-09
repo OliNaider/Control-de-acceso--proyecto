@@ -52,7 +52,7 @@ typedef struct struct_message {
 
 struct_message incomingData;
 String datosRecibidos = "";
-void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingDataBytes, int len) {
+void OnDataRecv(const esp_now_recv_info * info, const uint8_t *incomingDataBytes, int len) {
   memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
   Serial.print("ESP-NOW recibido: ");
   Serial.println(incomingData.msg);
@@ -205,11 +205,7 @@ void capturePhotoSaveLittleFS( void ) {
 }
 
 void sendPhoto( void ) {
-  
-  /** Enable the debug via Serial port
-   * none debug or 0
-   * basic debug or 1
-  */
+ 
   smtp.debug(1);
   smtp.callback(smtpCallback);
 
