@@ -1,0 +1,9 @@
+
+<img id="cam" src="http://IP_DEL_ESP32/stream">
+
+<script>
+const img = document.getElementById('cam');
+setInterval(() => {
+    img.src = 'http://192.168.0.102/stream?t=' + new Date().getTime();
+}, 200); // actualiza cada 200ms
+</script>
