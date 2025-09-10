@@ -16,8 +16,8 @@ SMTPSession smtp;
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status);
 
-const char* ssid = "IoTB";
-const char* password = "inventaronelVAR";
+const char* ssid = "moto g(7) plus 5062";
+const char* password = "blabla123";
 
 #define CAMERA_MODEL_AI_THINKER
 #if defined(CAMERA_MODEL_AI_THINKER)
@@ -93,6 +93,7 @@ void setup() {
   s->set_framesize(s, FRAMESIZE_QVGA);
 
   WiFi.begin(ssid, password);
+  IPAddress staticIP(10, 71, 145, 245); // ESP32 static IP
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
