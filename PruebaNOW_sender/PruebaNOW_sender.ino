@@ -11,19 +11,36 @@ typedef struct estructura {
 } estructura;
 estructura myData;
 
+String datos = ""; 
+int estado = 0;
+void mensaje1();
+
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  // Inicializar ESP-NOW
   esp_now_init();
   registrarPeer();
-  mensaje1();
   Serial.println(myData.msg);
 }
 
 void loop() {
 
-  return;
+  if(Serial.available() > 0){
+    datos = Serial.readString();
+    datos.trim();
+    Serial.println(datos);
+  }
+
+  if(datos == "mandar"){
+    estado = 1;
+    Serial.println(estado);
+  }
+
+  if(estado == 1){
+    mensaje1();
+    datos = "";
+    estado = 0;
+  }
   
 }
 

@@ -262,7 +262,7 @@ void sendPhoto( void ) {
    * transfer encoding and content encoding
   */
   att.descr.filename = FILE_PHOTO;
-  att.descr.mime = "image/png"; 
+  att.descr.mime = "image/jpeg"; 
   att.file.path = FILE_PHOTO_PATH;
   att.file.storage_type = esp_mail_file_storage_type_flash;
   att.descr.transfer_encoding = Content_Transfer_Encoding::enc_base64;
