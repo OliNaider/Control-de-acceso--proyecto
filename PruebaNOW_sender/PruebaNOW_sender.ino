@@ -1,6 +1,8 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
+const char* ssid = "IoTB";
+const char* password = "inventaronelVAR";
 
 // Dirección MAC del receptor (ESP32-CAM)
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};
@@ -18,6 +20,18 @@ void mensaje1();
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
+  
+  WiFi.begin(ssid, password);
+  Serial.print("Conectando a WiFi para sincronizar canal...");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println(" ¡Conectado!");
+  Serial.print("Canal WiFi actual: ");
+  Serial.println(WiFi.channel());
+
+
   esp_now_init();
   registrarPeer();
   Serial.println(myData.msg);
