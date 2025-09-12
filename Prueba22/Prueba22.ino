@@ -4,6 +4,7 @@
 #include <ESP_Mail_Client.h>
 #include <LittleFS.h>
 #include <esp_now.h>
+#include <ESPmDNS.h>
 
 //MAIL
 #define emailSenderAccount "IngresoSeguridadControl@gmail.com"
@@ -111,7 +112,6 @@ void setup() {
   //WIFI
   WiFi.mode(WIFI_AP_STA);
   WiFi.begin(ssid, password);
-  IPAddress staticIP(10, 71, 145, 245); // ESP32 static IP
 
   WiFi.setSleep(false);
   while (WiFi.status() != WL_CONNECTED) {
@@ -120,6 +120,13 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
+
+  if (!MDNS.begin("esp32")) {   // Set the hostname to "esp32.local"
+    Serial.println("Error setting up MDNS responder!");
+    while(1) {
+      delay(1000);
+    }
+  }
 
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error inicializando ESP-NOW");
