@@ -19,8 +19,8 @@ SMTPSession smtp;
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status);
 
-const char* ssid = "IoTB";
-const char* password = "inventaronelVAR";
+const char* ssid = "colchones 303";
+const char* password = "carro 303";
 
 //CAMARA
 #define CAMERA_MODEL_AI_THINKER

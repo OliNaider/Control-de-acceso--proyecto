@@ -5,14 +5,16 @@
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-//KEYPAD
-#define ROW_NUM     4 // four rows
-#define COLUMN_NUM  4 // three columns
-
+//CERRADURA
+#define PIN_CERRADURA 4
 //RFID
 #define SS_PIN 5    // SDA en el RC522
 #define RST_PIN 22  // RST en el RC522
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Crear el objeto del lector
+
+//KEYPAD
+#define ROW_NUM     4 // four rows
+#define COLUMN_NUM  4 // three columns
 
 char keys[ROW_NUM][COLUMN_NUM] = {
   {'1', '2', '3', 'A'},
