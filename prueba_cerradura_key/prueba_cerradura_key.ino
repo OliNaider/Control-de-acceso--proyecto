@@ -4,22 +4,8 @@
 #include <MFRC522.h>
 #include <WiFi.h>
 #include <esp_now.h>
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
-//WIFI
-const char* ssid = "IoTB";
-const char* wifi_password = "inventaronelVAR";
-
-//ESP-NOW
-// Dirección MAC del receptor (ESP32-CAM)
-uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};
-typedef struct estructura {
-  char msg[32];
-} estructura;
-estructura myData;
- 
-void mensaje1();
+//#include <LiquidCrystal_I2C.h>
+//LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //CERRADURA
 #define PIN_CERRADURA 4
@@ -70,31 +56,15 @@ void setup() {
   input_password.reserve(32); // maximum input characters is 33 (keypad)
   Wire.begin();
 
-  //WIFI
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, wifi_password);
-  Serial.print("Conectando a WiFi para sincronizar canal...");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println(" ¡Conectado!");
-  Serial.print("Canal WiFi actual: ");
-  Serial.println(WiFi.channel());
-
-  //ESP-NOW
-  esp_now_init();
-  registrarPeer();
-
   //RFID
   SPI.begin();        // Iniciar bus SPI
   mfrc522.PCD_Init(); // Iniciar RC522
   Serial.println("Lector RFID listo. Acerca una tarjeta...");
 
   //LCD
-  lcd.init();
-  lcd.clear();
-  lcd.backlight();  
+  //lcd.init();
+  //lcd.clear();
+  //lcd.backlight();  
 }
 
 void loop() {
@@ -130,13 +100,13 @@ void loop() {
   if (key) {
     
     Serial.println(key);  
-    lcd.print("*");
+    //lcd.print("*");
 
     switch (key) {
 
       case '*':
         input_password = ""; // limpiar input password
-        lcd.clear();
+        //lcd.clear();
         Serial.println(password);
         break;
 
@@ -144,12 +114,12 @@ void loop() {
         if(estadoK == 0) {
           if (password == input_password) {
             Serial.println("The password is correct, ACCESS GRANTED!");
-            lcd.clear();
-            lcd.print("The password is");
-            lcd.setCursor(2, 1);
-            lcd.print("correct");
-            delay(500);
-            lcd.clear();
+            //lcd.clear();
+            //lcd.print("The password is");
+            //lcd.setCursor(2, 1);
+            //lcd.print("correct");
+            //delay(500);
+            //lcd.clear();
 
             digitalWrite(PIN_CERRADURA, HIGH); //apagar la cerradura y que se abra la puerta
 
@@ -163,17 +133,16 @@ void loop() {
 
           } else {
             Serial.println("The password is incorrect, ACCESS DENIED!");
-            lcd.clear();
-            lcd.print("The password is");
-            lcd.setCursor(2, 1);
-            lcd.print("incorrect");
-            delay(500);
-            lcd.clear();
+            //lcd.clear();
+            //lcd.print("The password is");
+            //lcd.setCursor(2, 1);
+            //lcd.print("incorrect");
+            //delay(500);
+            //lcd.clear();
 
             intentos++;
             Serial.println(intentos);
             if(intentos >= 5){
-              mensaje1(); //manda mensaje por esp-now para sacar foto
               estadoK = 3;
               tiempoDeInicio = millis();
             } else {
@@ -367,17 +336,3 @@ void encontrarID(String tag) {
   }
 }
 
-
-//FUNCIONES ESP-NOW
-void registrarPeer() {
-  esp_now_peer_info_t peerInfo = {};
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
-  esp_now_add_peer(&peerInfo);
-}
-
-void mensaje1() {
-  strcpy(myData.msg, "MAIL");
-  esp_err_t result1 = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-}

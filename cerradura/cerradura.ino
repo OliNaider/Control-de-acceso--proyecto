@@ -13,7 +13,5 @@ void loop() {
   digitalWrite(relayPin, LOW); // O HIGH, depende del relé
   delay(5000); // Espera 5 segundos
 
-  // Cierra la cerradura (desactiva el relé)
-  digitalWrite(relayPin, HIGH); // O LOW, depende del relé
-  delay(5000); // Espera 5 segundos
+  
 }
