@@ -56,6 +56,7 @@ void setup() {
   input_password.reserve(32); // maximum input characters is 33 (keypad)
   Wire.begin();
 
+  pinMode(PIN_CERRADURA, OUTPUT);
   //RFID
   SPI.begin();        // Iniciar bus SPI
   mfrc522.PCD_Init(); // Iniciar RC522
@@ -68,8 +69,8 @@ void setup() {
 }
 
 void loop() {
-  char key = keypad.getKey();
-  digitalWrite(PIN_CERRADURA, LOW); 
+  char key = keypad.getKey(); 
+  digitalWrite(PIN_CERRADURA, LOW);
 
   if(estadoK == 3) {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
@@ -85,6 +86,7 @@ void loop() {
   }
 
   if (estadoK == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
+    digitalWrite(PIN_CERRADURA, HIGH);
     Serial.println("Tiempo agotado, volviendo a estado 0");
     estadoK = 0;
   }
@@ -121,8 +123,6 @@ void loop() {
             //delay(500);
             //lcd.clear();
 
-            digitalWrite(PIN_CERRADURA, HIGH); //apagar la cerradura y que se abra la puerta
-
             estadoK = 1;
             intentos = 0; 
 
@@ -139,6 +139,7 @@ void loop() {
             //lcd.print("incorrect");
             //delay(500);
             //lcd.clear();
+            digitalWrite(PIN_CERRADURA, LOW);
 
             intentos++;
             Serial.println(intentos);
@@ -156,6 +157,7 @@ void loop() {
           input_password = "";
 
         } else if(estadoK == 1){
+          digitalWrite(PIN_CERRADURA, HIGH);
           if(input_password == "123"){
             //ingresar nueva clave
             Serial.println("ingrese la nueva clave");
