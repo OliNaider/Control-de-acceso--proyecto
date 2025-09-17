@@ -57,6 +57,7 @@ void setup() {
   Wire.begin();
 
   pinMode(PIN_CERRADURA, OUTPUT);
+
   //RFID
   SPI.begin();        // Iniciar bus SPI
   mfrc522.PCD_Init(); // Iniciar RC522
@@ -70,24 +71,23 @@ void setup() {
 
 void loop() {
   char key = keypad.getKey(); 
-  digitalWrite(PIN_CERRADURA, LOW);
 
   if(estadoK == 3) {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
       estadoK = 0;
       intentos = 0;
       Serial.println("sistema desbloqueado");
-      digitalWrite(PIN_CERRADURA, LOW);
 
     } else {
       Serial.println("SISTEMA BLOQUEADO");
+      digitalWrite(PIN_CERRADURA, LOW);
     }
     return;
   }
 
   if (estadoK == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
-    digitalWrite(PIN_CERRADURA, HIGH);
     Serial.println("Tiempo agotado, volviendo a estado 0");
+    digitalWrite(PIN_CERRADURA, LOW);
     estadoK = 0;
   }
 
@@ -100,7 +100,6 @@ void loop() {
   }
 
   if (key) {
-    
     Serial.println(key);  
     //lcd.print("*");
 
@@ -122,6 +121,8 @@ void loop() {
             //lcd.print("correct");
             //delay(500);
             //lcd.clear();
+
+            digitalWrite(PIN_CERRADURA, HIGH);
 
             estadoK = 1;
             intentos = 0; 
@@ -157,7 +158,6 @@ void loop() {
           input_password = "";
 
         } else if(estadoK == 1){
-          digitalWrite(PIN_CERRADURA, HIGH);
           if(input_password == "123"){
             //ingresar nueva clave
             Serial.println("ingrese la nueva clave");
@@ -195,10 +195,10 @@ void loop() {
 
             } else {
               Serial.println("Esta tarjeta ya esta autorizada");
-              estadoK = 0;
+              
             }
             
-            estadoK = 0;
+            
             delay(1000);
 
           } else if(input_password == "ABC"){
@@ -221,24 +221,25 @@ void loop() {
               Serial.println("Tarjeta sin ID asignado");
               delay(5000);
               input_password = "";
-              estadoK = 0;           
+                      
             } else {
               encontrarID(uid);
               Serial.print("Con el ID: ");
               Serial.println(ID);
               delay(5000);
               input_password = "";
-              estadoK = 0; 
+              
             }
 
 
           }else {
-            estadoK = 0;
+            
             Serial.println("no se ha cambiado la clave");
             Serial.println(password);
             Serial.println(estadoK);
           }
 
+          
           input_password = "";
 
         }else if(estadoK == 2) {
