@@ -89,6 +89,9 @@ void loop() {
     Serial.println("Tiempo agotado, volviendo a estado 0");
     digitalWrite(PIN_CERRADURA, LOW);
     estadoK = 0;
+  } else {
+    Serial.println("estado: ");
+    Serial.print(estadoK);
   }
 
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
@@ -247,14 +250,13 @@ void loop() {
           Serial.println(password);
           Serial.println("clave cambiada");
           Serial.println(password);
-          estadoK = 0;
           Serial.println(estadoK);
 
           input_password = "";
         } else if(estadoK == 4) {
           int eliminarID = input_password.toInt();
           eliminarTag(eliminarID);
-          estadoK = 0;
+
           input_password = "";
         }
 
