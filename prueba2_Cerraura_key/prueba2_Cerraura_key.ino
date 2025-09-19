@@ -2,8 +2,8 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <MFRC522.h>
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+/*#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);*/
 
 
 //CERRADURA
@@ -40,6 +40,11 @@ unsigned long tiempoDeInicio = 0;
 unsigned long duracionBloqueo = 5000;
 unsigned long duracionCambios = 10000;
 
+//tiempo cerradura 
+int estadoC = 0;
+unsigned long tiempoCerradura = 0;
+unsigned long duracionCerradura = 2000;
+
 //NFC
 const int MAX_TAGS = 20; // máximo de tarjetas que se pueden guardar
 String authorizedTags[MAX_TAGS]; // array de UIDs
@@ -63,21 +68,19 @@ void setup() {
   Serial.println("Lector RFID listo. Acerca una tarjeta...");
 
   //LCD
-  lcd.init();
+  /*lcd.init();
   lcd.clear();
-  lcd.backlight();  
+  lcd.backlight();  */
 }
 
 void loop() {
   char key = keypad.getKey();
-  digitalWrite(PIN_CERRADURA, LOW); 
-
+ 
   if(estadoK == 3) {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
       estadoK = 0;
       intentos = 0;
       Serial.println("sistema desbloqueado");
-      digitalWrite(PIN_CERRADURA, LOW);
 
     } else {
       Serial.println("SISTEMA BLOQUEADO");
@@ -88,6 +91,12 @@ void loop() {
   if (estadoK == 1 && (millis() - tiempoDeInicio > duracionCambios)) {
     Serial.println("Tiempo agotado, volviendo a estado 0");
     estadoK = 0;
+  }
+
+  if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
+    Serial.println("cerradura cerrada");
+    digitalWrite(PIN_CERRADURA, LOW);
+    estadoC = 0; 
   }
 
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
@@ -101,13 +110,13 @@ void loop() {
   if (key) {
     
     Serial.println(key);  
-    lcd.print("*");
+    //lcd.print("*");
 
     switch (key) {
 
       case '*':
         input_password = ""; // limpiar input password
-        lcd.clear();
+       // lcd.clear();
         Serial.println(password);
         break;
 
@@ -115,35 +124,33 @@ void loop() {
         if(estadoK == 0) {
           if (password == input_password) {
             Serial.println("The password is correct, ACCESS GRANTED!");
-            lcd.clear();
+            /*lcd.clear();
             lcd.print("The password is");
             lcd.setCursor(2, 1);
             lcd.print("correct");
             delay(500);
-            lcd.clear();
+            lcd.clear();*/
 
             digitalWrite(PIN_CERRADURA, HIGH); //apagar la cerradura y que se abra la puerta
-            delay(5000);
-            digitalWrite(PIN_CERRADURA, LOW);
-
-
-            estadoK = 1;
             intentos = 0; 
 
             Serial.println(password);
             Serial.println(estadoK);
             
             tiempoDeInicio = millis();
+            tiempoCerradura = millis();
+
+            estadoC = 1; 
+            estadoK = 1;
 
           } else {
             Serial.println("The password is incorrect, ACCESS DENIED!");
-            lcd.clear();
+            /*lcd.clear();
             lcd.print("The password is");
             lcd.setCursor(2, 1);
             lcd.print("incorrect");
             delay(500);
-            lcd.clear();
-            digitalWrite(PIN_CERRADURA, LOW);
+            lcd.clear();*/
 
 
             intentos++;
