@@ -93,12 +93,6 @@ void loop() {
     estadoK = 0;
   }
 
-  if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
-    Serial.println("cerradura cerrada");
-    digitalWrite(PIN_CERRADURA, LOW);
-    estadoC = 0; 
-  }
-
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
     uid = getUID();
     Serial.print("UID leído: ");
@@ -118,12 +112,13 @@ void loop() {
         input_password = ""; // limpiar input password
        // lcd.clear();
         Serial.println(password);
+        estadoK = 0; 
         break;
 
       case '#':
         if(estadoK == 0) {
           if (password == input_password) {
-            Serial.println("The password is correct, ACCESS GRANTED!");
+            Serial.println("The password is correct");
             /*lcd.clear();
             lcd.print("The password is");
             lcd.setCursor(2, 1);
@@ -135,16 +130,19 @@ void loop() {
             intentos = 0; 
 
             Serial.println(password);
-            Serial.println(estadoK);
             
             tiempoDeInicio = millis();
             tiempoCerradura = millis();
 
             estadoC = 1; 
             estadoK = 1;
+            
+            Serial.println(estadoK);
+            Serial.print("estadoC:");
+            Serial.println(estadoC);
 
           } else {
-            Serial.println("The password is incorrect, ACCESS DENIED!");
+            Serial.println("The password is incorrect");
             /*lcd.clear();
             lcd.print("The password is");
             lcd.setCursor(2, 1);
@@ -163,6 +161,9 @@ void loop() {
               Serial.println(estadoK);
               Serial.println(password);
             }
+
+            estadoK = 0; 
+            estadoC = 0; 
 
           }
 
@@ -276,6 +277,11 @@ void loop() {
     } 
   }
 
+  if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
+    Serial.println("cerradura cerrada");
+    digitalWrite(PIN_CERRADURA, LOW);
+    estadoC = 0; 
+  }
   
   if(estadoN == 1){
     int index = encontrarTag(uid);
