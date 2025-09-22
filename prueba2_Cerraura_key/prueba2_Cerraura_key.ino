@@ -26,7 +26,7 @@ char keys[ROW_NUM][COLUMN_NUM] = {
 };
 
 byte pin_rows[ROW_NUM] = {32, 33, 25, 26}; // GPIO18, GPIO5, GPIO17, GPIO16 connect to the row pins
-byte pin_column[COLUMN_NUM] = {27, 14, 12, 15};  // GPIO4, GPIO0, GPIO2 connect to the column pins
+byte pin_column[COLUMN_NUM] = {27, 14, 12, 4};  // GPIO4, GPIO0, GPIO2 connect to the column pins
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
  
@@ -290,6 +290,7 @@ void loop() {
       Serial.println(authorizedTags[index]);
 
       digitalWrite(PIN_CERRADURA, HIGH);
+      estadoC = 1; 
 
       uid = "";
       estadoN = 0;
