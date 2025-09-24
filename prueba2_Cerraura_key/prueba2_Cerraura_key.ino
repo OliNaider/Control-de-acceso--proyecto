@@ -97,7 +97,7 @@ void loop() {
     uid = getUID();
     Serial.print("UID leído: ");
     Serial.println(uid);
-    delay(1000);
+    delay(2000);
     estadoN = 1; 
   }
 
@@ -280,17 +280,20 @@ void loop() {
   if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
     Serial.println("cerradura cerrada");
     digitalWrite(PIN_CERRADURA, LOW);
+    estadoK = 0;
+    estadoN = 0;
     estadoC = 0; 
   }
   
   if(estadoN == 1){
     int index = encontrarTag(uid);
     if(index != -1) {
-      Serial.print("TARJETA CORRECTA. INGRESE!!!!");
+      Serial.print("TARJETA CORRECTA. INGRESE");
       Serial.println(authorizedTags[index]);
 
       digitalWrite(PIN_CERRADURA, HIGH);
       estadoC = 1; 
+      tiempoCerradura = millis();
 
       uid = "";
       estadoN = 0;
@@ -298,6 +301,8 @@ void loop() {
       Serial.println("TARJETA INCORRECTA");
       uid = "";
       estadoN = 0;
+      estadoK = 0; 
+      estadoC = 0;
     }
   } 
 
