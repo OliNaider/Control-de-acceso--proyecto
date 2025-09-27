@@ -15,8 +15,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);*/
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Crear el objeto del lector
 
 //KEYPAD
-#define ROW_NUM     4 // four rows
-#define COLUMN_NUM  4 // three columns
+#define ROW_NUM     4 
+#define COLUMN_NUM  4 
 
 char keys[ROW_NUM][COLUMN_NUM] = {
   {'1', '2', '3', 'A'},
@@ -26,7 +26,7 @@ char keys[ROW_NUM][COLUMN_NUM] = {
 };
 
 byte pin_rows[ROW_NUM] = {32, 33, 25, 26}; // GPIO18, GPIO5, GPIO17, GPIO16 connect to the row pins
-byte pin_column[COLUMN_NUM] = {27, 14, 12, 4};  // GPIO4, GPIO0, GPIO2 connect to the column pins
+byte pin_column[COLUMN_NUM] = {27, 14, 21, 4};  // GPIO4, GPIO0, GPIO2 connect to the column pins
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
  
@@ -150,7 +150,6 @@ void loop() {
             delay(500);
             lcd.clear();*/
 
-
             intentos++;
             Serial.println(intentos);
             if(intentos >= 5){
@@ -158,12 +157,10 @@ void loop() {
               tiempoDeInicio = millis();
             } else {
               estadoK = 0;
+              estadoC = 0;
               Serial.println(estadoK);
               Serial.println(password);
             }
-
-            estadoK = 0; 
-            estadoC = 0; 
 
           }
 
@@ -280,8 +277,6 @@ void loop() {
   if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
     Serial.println("cerradura cerrada");
     digitalWrite(PIN_CERRADURA, LOW);
-    estadoK = 0;
-    estadoN = 0;
     estadoC = 0; 
   }
   
