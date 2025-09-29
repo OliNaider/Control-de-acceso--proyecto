@@ -64,10 +64,3 @@ void startCameraServer() {
   }
 }
 
-void stopCameraServer() {
-  if (stream_httpd != NULL) {
-    streaming = false;
-    httpd_stop(stream_httpd);
-    stream_httpd = NULL;
-  }
-}
