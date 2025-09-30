@@ -2,8 +2,8 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <MFRC522.h>
-/*#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);*/
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 
 //CERRADURA
@@ -26,7 +26,7 @@ char keys[ROW_NUM][COLUMN_NUM] = {
 };
 
 byte pin_rows[ROW_NUM] = {32, 33, 25, 26}; // GPIO18, GPIO5, GPIO17, GPIO16 connect to the row pins
-byte pin_column[COLUMN_NUM] = {27, 14, 21, 4};  // GPIO4, GPIO0, GPIO2 connect to the column pins
+byte pin_column[COLUMN_NUM] = {27, 14, 16, 4};  // GPIO4, GPIO0, GPIO2 connect to the column pins
 
 Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM );
  
@@ -58,7 +58,7 @@ int ID = 0;
 void setup() {
   Serial.begin(115200);
   input_password.reserve(32); // maximum input characters is 33 (keypad)
-  Wire.begin();
+  Wire.begin(21, 17);
 
   pinMode(PIN_CERRADURA, OUTPUT);
 
@@ -68,9 +68,9 @@ void setup() {
   Serial.println("Lector RFID listo. Acerca una tarjeta...");
 
   //LCD
-  /*lcd.init();
+  lcd.init();
   lcd.clear();
-  lcd.backlight();  */
+  lcd.backlight();  
 }
 
 void loop() {
@@ -104,13 +104,13 @@ void loop() {
   if (key) {
     
     Serial.println(key);  
-    //lcd.print("*");
+    lcd.print("*");
 
     switch (key) {
 
       case '*':
         input_password = ""; // limpiar input password
-       // lcd.clear();
+        lcd.clear();
         Serial.println(password);
         estadoK = 0; 
         break;
@@ -118,13 +118,15 @@ void loop() {
       case '#':
         if(estadoK == 0) {
           if (password == input_password) {
+            
             Serial.println("The password is correct");
-            /*lcd.clear();
-            lcd.print("The password is");
+
+            lcd.clear();
+            lcd.print("La contraseña");
             lcd.setCursor(2, 1);
-            lcd.print("correct");
-            delay(500);
-            lcd.clear();*/
+            lcd.print("es correcta");
+            delay(2000);
+            lcd.clear();
 
             digitalWrite(PIN_CERRADURA, HIGH); //apagar la cerradura y que se abra la puerta
             intentos = 0; 
@@ -143,12 +145,12 @@ void loop() {
 
           } else {
             Serial.println("The password is incorrect");
-            /*lcd.clear();
-            lcd.print("The password is");
+            lcd.clear();
+            lcd.print("La constraseña");
             lcd.setCursor(2, 1);
-            lcd.print("incorrect");
-            delay(500);
-            lcd.clear();*/
+            lcd.print("es incorrecta");
+            delay(2000);
+            lcd.clear();
 
             intentos++;
             Serial.println(intentos);
@@ -167,9 +169,16 @@ void loop() {
           input_password = "";
 
         } else if(estadoK == 1){
+
           if(input_password == "123"){
             //ingresar nueva clave
             Serial.println("ingrese la nueva clave");
+
+            lcd.clear();
+            lcd.print("ingrese");
+            lcd.setCursor(2, 1);
+            lcd.print("nueva clave");
+
             estadoK = 2;
             Serial.println(password);
             Serial.println(estadoK);
@@ -177,6 +186,14 @@ void loop() {
 
           } else if (input_password == "456") {
             //acreditar tarjeta y asignarle un ID
+
+            lcd.clear();
+            lcd.print("Acerque tarjeta");
+            lcd.setCursor(2, 1);
+            lcd.print("para acreditar");
+            delay(2000);
+            lcd.clear();
+
             while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
             }  
             uid = getUID();
@@ -196,6 +213,18 @@ void loop() {
                 Serial.print("con el ID: ");
                 Serial.println(authorizedIDs[tagCount]);
 
+                lcd.clear();
+                lcd.print("Tarjeta");
+                lcd.setCursor(2, 1);
+                lcd.print("acreditada");
+                delay(1500);
+                lcd.clear();
+                lcd.print("Con el ID: ");
+                lcd.setCursor(2, 1);
+                lcd.print(authorizedIDs[tagCount]);
+                delay(2000);
+                lcd.clear();
+
                 nextID++;
                 tagCount++;
                 estadoK = 0;
@@ -204,6 +233,12 @@ void loop() {
 
             } else {
               Serial.println("Esta tarjeta ya esta autorizada");
+              lcd.clear();
+              lcd.print("Tarjeta ya");
+              lcd.setCursor(2, 1);
+              lcd.print("autorizada");
+              delay(1500);
+              lcd.clear();
               estadoK = 0;
             }
             
@@ -213,6 +248,12 @@ void loop() {
           } else if(input_password == "ABC"){
             //desacreditar tarjeta 
             Serial.println("Ingrese ID de la tarjeta que desea eliminar");
+            lcd.clear();
+            lcd.print("ingrese ID para");
+            lcd.setCursor(2, 1);
+            lcd.print("eliminar tarjeta");
+            delay(1500);
+            lcd.clear();
             estadoK = 4;
             input_password = "";
 
@@ -220,6 +261,13 @@ void loop() {
           } else if(input_password == "BCD"){
             //mostrar ID
             Serial.println("acerque la tarjeta");
+            lcd.clear();
+            lcd.print("acerque la");
+            lcd.setCursor(2, 1);
+            lcd.print("tarjeta");
+            delay(1500);
+            lcd.clear();
+
             while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
             }  
 
@@ -228,6 +276,14 @@ void loop() {
             int BLABLA = encontrarTag(uid);
             if(BLABLA == -1) {
               Serial.println("Tarjeta sin ID asignado");
+
+              lcd.clear();
+              lcd.print("Tarjeta sin ID");
+              lcd.setCursor(2, 1);
+              lcd.print("asignado");
+              delay(1500);
+              lcd.clear();
+              
               delay(5000);
               input_password = "";
               estadoK = 0;           
@@ -235,6 +291,15 @@ void loop() {
               encontrarID(uid);
               Serial.print("Con el ID: ");
               Serial.println(ID);
+              
+              lcd.clear();
+              lcd.print("Tarjeta con el ID: ");
+              lcd.setCursor(2, 1);
+              lcd.print(ID);
+
+              delay(1500);
+              lcd.clear();
+
               delay(5000);
               input_password = "";
               estadoK = 0; 
@@ -255,6 +320,12 @@ void loop() {
           Serial.println(password);
           Serial.println("clave cambiada");
           Serial.println(password);
+
+          lcd.clear();
+          lcd.print("Clave cambiada");
+          delay(2000);
+          lcd.clear();
+
           estadoK = 0;
           Serial.println(estadoK);
 
@@ -287,6 +358,13 @@ void loop() {
       Serial.println(authorizedTags[index]);
 
       digitalWrite(PIN_CERRADURA, HIGH);
+      lcd.clear();
+      lcd.print("Tarjeta correcta");
+      lcd.setCursor(2, 1);
+      lcd.print("ingrese");
+      delay(1500);
+      lcd.clear();
+
       estadoC = 1; 
       tiempoCerradura = millis();
 
@@ -294,6 +372,12 @@ void loop() {
       estadoN = 0;
     } else {
       Serial.println("TARJETA INCORRECTA");
+      lcd.clear();
+      lcd.print("Tarjeta");
+      lcd.setCursor(2, 1);
+      lcd.print("incorrecta");
+      delay(1500);
+      lcd.clear();
       uid = "";
       estadoN = 0;
       estadoK = 0; 
