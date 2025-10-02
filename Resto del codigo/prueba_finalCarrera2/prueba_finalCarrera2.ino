@@ -18,7 +18,7 @@ void loop() {
   int lectura = digitalRead(PIN_SWITCH);
 
   // detectar flanco: cuando pasa de HIGH a LOW (pulsado)
-  if (lectura == LOW && ultimoEstado == HIGH) {
+  if (lectura == LOW && ultimoEstado == HIGH) {  //HIGH puerta abierta; LOW puerta cerrada
     unsigned long ahora = millis();
     unsigned long intervalo = ahora - ultimoTiempo;
     ultimoTiempo = ahora;

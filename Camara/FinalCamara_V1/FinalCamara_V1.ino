@@ -19,8 +19,8 @@ SMTPSession smtp;
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status);
 
-const char* ssid = "IoTB";
-const char* password = "inventaronelVAR";
+const char* ssid = "CARRO 2601 2.4GHz";
+const char* password = "colchones301";
 
 //CAMARA
 #define CAMERA_MODEL_AI_THINKER
@@ -52,7 +52,9 @@ typedef struct struct_message {
 
 struct_message incomingData;
 String datosRecibidos = "";
-void OnDataRecv(const uint8_t *mac, const uint8_t *incomingDataBytes, int len) {  //depende la version es: const esp_now_recv_info * info, const uint8_t *incomingDataBytes, int len
+void OnDataRecv(const esp_now_recv_info * info, const uint8_t *incomingDataBytes, int len) {  
+  //depende la version es: const esp_now_recv_info * info, const uint8_t *incomingDataBytes, int len
+  // o const uint8_t *mac, const uint8_t *incomingDataBytes, int len
   memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
   Serial.print("ESP-NOW recibido: ");
   Serial.println(incomingData.msg);
