@@ -10,7 +10,7 @@ struct_message incomingData;
 String datosRecibidos = "";
 
 // Callback al recibir datos (IDF v5)
-void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingDataBytes, int len) {
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingDataBytes, int len) {
   memcpy(&incomingData, incomingDataBytes, sizeof(incomingData));
   Serial.println(incomingData.msg);
   datosRecibidos = incomingData.msg;

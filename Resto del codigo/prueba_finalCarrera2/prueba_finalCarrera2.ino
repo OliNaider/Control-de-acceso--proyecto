@@ -1,4 +1,4 @@
-const int PIN_SWITCH = 2;   // final de carreras
+const int PIN_SWITCH = 35;   // final de carreras
 const int PIN_LED = 13;
 
 unsigned long ultimoTiempo = 0;

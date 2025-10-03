@@ -37,6 +37,6 @@ void loop() {
     contador = 0;
   }
 
-  millis() - tiempoDeInicio) >= duracionBloqueo
+  (millis() - tiempoDeInicio) >= duracionBloqueo;
 }
 
