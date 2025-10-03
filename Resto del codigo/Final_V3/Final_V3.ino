@@ -14,15 +14,13 @@ const char* passwordWIFI = "inventaronelVAR";
 //ESP-NOW
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};  // Dirección MAC del receptor (ESP32-CAM)
 
-// Estructura del mensaje
-typedef struct estructura {
+typedef struct estructura {  // Estructura del mensaje
   char msg[32];
 } estructura;
 estructura myData;
 
 String datos = ""; 
 void mensaje1();
-
 
 //CERRADURA
 #define PIN_CERRADURA 13
@@ -73,6 +71,15 @@ String uid = "";
 int estadoN = 0;
 int ID = 0; 
 
+//FINAL DE CARRERAS
+const int PIN_finalCarreras 34;
+unsigned long ultimoTiempo = 0;
+const unsigned long UMBRAL_INTERVALO = 300; // ms: si se pulsa más rápido que esto, cuenta como "rápido"
+int contadorRapido = 0;
+const int LIMITE_PULSACIONES = 10;
+int ultimoEstado = HIGH;
+
+
 void setup() {
   Serial.begin(115200);
   input_password.reserve(32); // maximum input characters is 33 (keypad)
@@ -97,6 +104,7 @@ void setup() {
   Serial.println(myData.msg);
 
   pinMode(PIN_CERRADURA, OUTPUT);  //CERRADURA
+  pinMode(PIN_finalCarreras, INPUT_PULLUP);  //FINAL DE CARRERAS
 
   //RFID
   SPI.begin();        // Iniciar bus SPI
@@ -110,6 +118,33 @@ void setup() {
 }
 
 void loop() {
+  
+  //FINAL DE CARRERAS
+  int lectura = digitalRead(PIN_finalCarreras);
+  // detectar flanco: cuando pasa de HIGH a LOW (pulsado)
+  if (lectura == LOW && ultimoEstado == HIGH) {  //HIGH puerta abierta; LOW puerta cerrada
+    unsigned long ahora = millis();
+    unsigned long intervalo = ahora - ultimoTiempo;
+    ultimoTiempo = ahora;
+
+    if (intervalo < UMBRAL_INTERVALO) {
+      contadorRapido++;
+      Serial.print("Pulsación rápida #");
+      Serial.println(contadorRapido);
+    } else {
+      contadorRapido = 1; // reiniciar la cuenta, esta es la primera de una nueva secuencia
+      Serial.println("Pulsación normal, contador reseteado.");
+    }
+
+    if (contadorRapido >= LIMITE_PULSACIONES) {
+      Serial.println("¡¡DEMASIADAS PULSACIONES!!");
+      contadorRapido = 1;
+      
+    }
+  }
+  ultimoEstado = lectura;
+   
+  //KEYPAD
   char key = keypad.getKey();
  
   if(estadoK == 3) {
@@ -138,7 +173,6 @@ void loop() {
   }
 
   if (key) {
-    
     Serial.println(key);  
     lcd.print("*");
 
