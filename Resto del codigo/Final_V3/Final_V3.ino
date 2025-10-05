@@ -8,8 +8,8 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //WIFI
-const char* ssid = "moto g(7) plus 5062";
-const char* passwordWIFI = "blabla123";
+const char* ssid = "CARRO 2601 2.4GHz";
+const char* passwordWIFI = "colchones301";
 
 //ESP-NOW
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};  // Dirección MAC del receptor (ESP32-CAM)
@@ -72,7 +72,7 @@ int estadoN = 0;
 int ID = 0; 
 
 //FINAL DE CARRERAS
-const int PIN_finalCarreras = 34;
+const int PIN_finalCarreras = 12;
 unsigned long ultimoTiempo = 0;
 const unsigned long UMBRAL_INTERVALO = 300; // ms: si se pulsa más rápido que esto, cuenta como "rápido"
 int contadorRapido = 0;
@@ -89,7 +89,7 @@ void setup() {
   WiFi.mode(WIFI_STA);
   
   WiFi.begin(ssid, passwordWIFI);
-  Serial.print("Conectando a WiFi para sincronizar canal...");
+  Serial.print("Conectando a WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");

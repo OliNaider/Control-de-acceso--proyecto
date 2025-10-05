@@ -1,5 +1,5 @@
-const int PIN_SWITCH = 35;   // final de carreras
-const int PIN_LED = 13;
+const int PIN_SWITCH = 12;   // final de carreras
+
 
 unsigned long ultimoTiempo = 0;
 const unsigned long UMBRAL_INTERVALO = 300; // ms: si se pulsa más rápido que esto, cuenta como "rápido"
@@ -10,7 +10,7 @@ int ultimoEstado = HIGH;
 
 void setup() {
   pinMode(PIN_SWITCH, INPUT_PULLUP);
-  pinMode(PIN_LED, OUTPUT);
+ 
   Serial.begin(115200);
 }
 
@@ -39,7 +39,7 @@ void loop() {
       
     }
   }
-
+  delay(30);
   ultimoEstado = lectura;
 }
 
