@@ -48,7 +48,7 @@ Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_
  
 String input_password;
 const String cambioClave = "123";
-String password = "7890";
+String password = "1515";
 int estadoK = 0;
 int intentos = 0;
 
