@@ -138,8 +138,9 @@ void loop() {
 
     if (contadorRapido >= LIMITE_PULSACIONES) {
       Serial.println("¡¡DEMASIADAS PULSACIONES!!");
-      contadorRapido = 1;
+      mensaje1();
       
+      contadorRapido = 1;
     }
   }
   ultimoEstado = lectura;
@@ -151,10 +152,16 @@ void loop() {
     if((millis() - tiempoDeInicio) >= duracionBloqueo) {
       estadoK = 0;
       intentos = 0;
+      lcd.clear():
       Serial.println("sistema desbloqueado");
 
     } else {
       Serial.println("SISTEMA BLOQUEADO");
+
+      lcd.clear();
+      lcd.print("Sistema"):
+      lcd.setCursor(2, 1);
+      lcd.print("Bloqueado");
     }
     return;
   }
@@ -336,8 +343,6 @@ void loop() {
             lcd.print("acerque la");
             lcd.setCursor(2, 1);
             lcd.print("tarjeta");
-            delay(1500);
-            lcd.clear();
 
             while (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
             }  
@@ -465,7 +470,7 @@ String getUID() {
   for (byte i = 0; i < mfrc522.uid.size; i++) {
     uidString += String(mfrc522.uid.uidByte[i], HEX); // lo convierte a HEX
   }
-  uidString.toUpperCase(); // opcional, para que siempre sea en mayúsculas
+  uidString.toUpperCase(); 
   return uidString;
 }
 
