@@ -79,6 +79,8 @@ int contadorRapido = 0;
 const int LIMITE_PULSACIONES = 10;
 int ultimoEstado = HIGH;
 
+//BUZZER
+#define PIN_buzzer 15
 
 void setup() {
   Serial.begin(115200);
@@ -105,6 +107,7 @@ void setup() {
 
   pinMode(PIN_CERRADURA, OUTPUT);  //CERRADURA
   pinMode(PIN_finalCarreras, INPUT_PULLUP);  //FINAL DE CARRERAS
+  pinMode(PIN_buzzer, OUTPUT);
 
   //RFID
   SPI.begin();        // Iniciar bus SPI
@@ -122,7 +125,7 @@ void loop() {
   //FINAL DE CARRERAS
   int lectura = digitalRead(PIN_finalCarreras);
   // detectar flanco: cuando pasa de HIGH a LOW (pulsado)
-  if (lectura == LOW && ultimoEstado == HIGH) {  //HIGH puerta abierta; LOW puerta cerrada
+  if (lectura == HIGH && ultimoEstado == LOW) {  //HIGH puerta abierta; LOW puerta cerrada
     unsigned long ahora = millis();
     unsigned long intervalo = ahora - ultimoTiempo;
     ultimoTiempo = ahora;
@@ -144,6 +147,7 @@ void loop() {
     }
   }
   ultimoEstado = lectura;
+
    
   //KEYPAD
   char key = keypad.getKey();
@@ -419,6 +423,16 @@ void loop() {
         input_password += key; // agregar carácter a input password
         break;
     } 
+  }
+
+  //si la puerta se abre sin la contraseña correcta
+  if(lectura == HIGH && input_password != password) {
+    Serial.println("Puerta abierta sin clave");
+    mensaje1();
+
+    digitalWrite(PIN_buzzer, HIGH);
+    delay(500);
+    digitalWrite(PIN_buzzer, LOW);
   }
 
   if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
