@@ -8,8 +8,8 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //WIFI
-const char* ssid = "IoTB";
-const char* passwordWIFI = "inventaronelVAR";
+const char* ssid = "moto g(7) plus 5062";
+const char* passwordWIFI = "blabla123";
 
 //ESP-NOW
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};  // Dirección MAC del receptor (ESP32-CAM)
@@ -24,6 +24,7 @@ void mensaje1();
 
 //CERRADURA
 #define PIN_CERRADURA 13
+
 
 //RFID
 #define SS_PIN 5    // SDA en el RC522
@@ -147,8 +148,7 @@ void loop() {
     }
   }
   ultimoEstado = lectura;
-
-   
+  
   //KEYPAD
   char key = keypad.getKey();
  
@@ -336,9 +336,8 @@ void loop() {
             lcd.print("eliminar tarjeta");
             delay(1500);
             lcd.clear();
-            estadoK = 4;
-            input_password = "";
 
+            estadoK = 4;
 
           } else if(input_password == "BCD"){
             //mostrar ID
@@ -413,6 +412,12 @@ void loop() {
         } else if(estadoK == 4) {
           int eliminarID = input_password.toInt();
           eliminarTag(eliminarID);
+          
+          lcd.clear();
+          lcd.print("tarjeta eliminada");
+          delay(2000);
+          lcd.clear();
+
           estadoK = 0;
           input_password = "";
         }
