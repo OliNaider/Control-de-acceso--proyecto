@@ -24,7 +24,7 @@ void mensaje1();
 
 //CERRADURA
 #define PIN_CERRADURA 13
-
+bool lectura1 = true; 
 
 //RFID
 #define SS_PIN 5    // SDA en el RC522
@@ -431,7 +431,7 @@ void loop() {
   }
 
   //si la puerta se abre sin la contraseña correcta
-  if(lectura == HIGH && input_password != password) {
+  if(lectura == HIGH && input_password != password || !lectura1) {
     Serial.println("Puerta abierta sin clave");
     mensaje1();
 
@@ -449,6 +449,7 @@ void loop() {
   if(estadoN == 1){
     int index = encontrarTag(uid);
     if(index != -1) {
+      lectura1 = false;
       Serial.print("TARJETA CORRECTA. INGRESE");
       Serial.println(authorizedTags[index]);
 
