@@ -8,8 +8,8 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //WIFI
-const char* ssid = "moto g(7) plus 5062";
-const char* passwordWIFI = "blabla123";
+const char* ssid = "IoTB";
+const char* passwordWIFI = "inventaronelVAR";
 
 //ESP-NOW
 uint8_t broadcastAddress[] = {0xB0, 0xA7, 0x32, 0xF1, 0xD7, 0xA4};  // Dirección MAC del receptor (ESP32-CAM)
@@ -82,6 +82,8 @@ int ultimoEstado = HIGH;
 
 //BUZZER
 #define PIN_buzzer 15
+
+bool accesoPermitido = false;
 
 void setup() {
   Serial.begin(115200);
@@ -201,6 +203,7 @@ void loop() {
           if (password == input_password) {
             
             Serial.println("The password is correct");
+            accesoPermitido = true;
 
             lcd.clear();
             lcd.print("La clave");
@@ -431,13 +434,15 @@ void loop() {
   }
 
   //si la puerta se abre sin la contraseña correcta
-  if(lectura == HIGH && input_password != password || !lectura1) {
+  if(lectura == HIGH && accesoPermitido == false) {
     Serial.println("Puerta abierta sin clave");
     mensaje1();
 
     digitalWrite(PIN_buzzer, HIGH);
     delay(500);
     digitalWrite(PIN_buzzer, LOW);
+  } else if (lectura == LOW && ultimoEstado == HIGH) {
+    accesoPermitido = false;  
   }
 
   if(estadoC == 1 && (millis() - tiempoCerradura > duracionCerradura)){
@@ -449,7 +454,7 @@ void loop() {
   if(estadoN == 1){
     int index = encontrarTag(uid);
     if(index != -1) {
-      lectura1 = false;
+      accesoPermitido = true;
       Serial.print("TARJETA CORRECTA. INGRESE");
       Serial.println(authorizedTags[index]);
 
