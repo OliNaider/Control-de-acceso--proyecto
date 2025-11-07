@@ -125,6 +125,7 @@ void setup() {
 
 void loop() {
   
+
   //FINAL DE CARRERAS
   int lectura = digitalRead(PIN_finalCarreras);
   if(lectura != ultimoEstado) {
@@ -132,17 +133,17 @@ void loop() {
     if(lectura == HIGH && accesoPermitido == false) {
       Serial.println("Puerta abierta sin clave");
       mensaje1();
+      
+      tone(PIN_buzzer, 1000);
+      delay(700);
+      noTone(PIN_buzzer);
 
-      digitalWrite(PIN_buzzer, HIGH);
-      delay(500);
-      digitalWrite(PIN_buzzer, LOW);
     } else if (lectura == LOW && ultimoEstado == HIGH) {
       accesoPermitido = false;  
     }
 
     ultimoEstado = lectura;
   }
-
   
   //KEYPAD
   char key = keypad.getKey();
